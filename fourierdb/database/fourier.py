@@ -11,7 +11,7 @@ def construct_snowflake() -> int:
 
 class FourierDocument(dict):
     def __init__(self, data: dict = {}) -> None:
-        data["_id"] = construct_snowflake()
+        data["_id"] = construct_snowflake() if not data.get("_id", False) else data.get("_id")
         return super().__init__(data)
 
 
