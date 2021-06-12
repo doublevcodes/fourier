@@ -46,6 +46,13 @@ async def remove_db(database_name: str, response: Response):
     db_file.unlink(missing_ok=False)
     return {"message": f"The database {database_name} was successfully deleted"}
 
+@server.get("/{database_name}/{collection_name}", status_code=200)
+async def get_collection(database_name: str, collection_name, response: Response):
+    db_file = Path(FOURIER_DBS / f"{database_name}.db")
+    db: FourierDB = pickle.load(open(db_file, "rb"))
+    collection = db[collection_name]
+    return dict(collection)
+
 @server.post("/{database_name}/{collection_name}", status_code=201)
 async def insert_collection(database_name: str, collection_name: str):
     db_file = Path(FOURIER_DBS / f"{database_name}.db")
@@ -54,6 +61,14 @@ async def insert_collection(database_name: str, collection_name: str):
     db.add_collection(new_collection)
     pickle.dump(db, open(db_file, "wb"))
     return {"message": "Collection added successfully", "name": collection_name}
+
+@server.delete("/{document_name}/{collection_name}", status_code=200)
+async def remove_collection(database_name: str, collection_name: str, response: Response):
+    db_file = Path(FOURIER_DBS / f"{database_name}.db")
+    db: FourierDB = pickle.load(open(db_file, "rb"))
+    del db[collection_name]
+    pickle.dump(db, open(db_file, "wb"))
+    return {"message": f"The collection {collection_name} was successfully deleted"}
 
 @server.post("/{database_name}/{collection_name}/documents", status_code=201)
 async def insert_document(request: Request, database_name: str, collection_name: str, response: Response):

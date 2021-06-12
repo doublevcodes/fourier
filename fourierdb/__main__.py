@@ -1,4 +1,5 @@
 from typing import Optional
+from fourierdb.server import run_server
 
 import click
 
@@ -18,16 +19,12 @@ def fourierdb(ctx):
     show_default=True,
     help="The port to run the FourierDB server on",
 )
-@click.option(
-    "--debug/--no-debug", default=True, help="Whether to run the server in debug mode"
-)
 @click.pass_context
 def run(
     ctx,
     port: Optional[int],
-    debug: bool,
 ):
-    click.echo(f"Hi")
+    run_server(port)
 
 
 if __name__ == "__main__":
