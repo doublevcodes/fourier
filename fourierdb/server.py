@@ -62,11 +62,11 @@ async def insert_collection(database_name: str, collection_name: str):
     pickle.dump(db, open(db_file, "wb"))
     return {"message": "Collection added successfully", "name": collection_name}
 
-@server.delete("/{document_name}/{collection_name}", status_code=200)
+@server.delete("/{database_name}/{collection_name}", status_code=200)
 async def remove_collection(database_name: str, collection_name: str, response: Response):
     db_file = Path(FOURIER_DBS / f"{database_name}.db")
     db: FourierDB = pickle.load(open(db_file, "rb"))
-    del db[collection_name]
+    db.remove_collection(collection_name)
     pickle.dump(db, open(db_file, "wb"))
     return {"message": f"The collection {collection_name} was successfully deleted"}
 

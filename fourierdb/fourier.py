@@ -31,3 +31,6 @@ class FourierDB(dict):
 
     def add_collection(self, collection: FourierCollection):
         self[collection.name] = collection
+
+    def remove_collection(self, collection_name: str):
+        del self[collection_name]

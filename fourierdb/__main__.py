@@ -24,6 +24,8 @@ def run(
     ctx,
     port: Optional[int],
 ):
+    click.secho(f"Starting FourierDB server on port {port}", fg="green", bold=True, underline=True)
+    click.secho(f"FourierDB running on port {port} ✓", fg="green", bold=True, underline=True)
     run_server(port)
 
 
