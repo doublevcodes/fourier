@@ -1,5 +1,6 @@
 import uvicorn
 import pickle
+import click
 from pathlib import Path
 from fourierdb import FourierDB, FourierCollection, FourierDocument
 from fastapi import FastAPI, Request, Response
@@ -18,16 +19,22 @@ async def start_server():
     FOURIER_DBS.mkdir(exist_ok=True)
 
 @server.get("/{database_name}", status_code=200)
-async def get_db(database_name: str, response: Response):
+async def get_db(request: Request, database_name: str, response: Response):
     db_file = Path(FOURIER_DBS / f"{database_name}.db")
+    method = click.style("GET", fg="green")
+    path = click.style(str(request.url), bold=True)
     if not(db_file.exists()):
         response.status_code = 404
+        status_code = click.style("404", fg="red", bold=True)
+        click.echo(f"{status_code} with {method}:    {path}")
         return {"message": f"The database {database_name} was not found"}
+    status_code = click.style("200", fg="green", bold=True)
+    click.echo(f"{status_code} with {method}:    {path}")
     db = pickle.load(open(db_file, "rb"))
     return dict(db)
 
 @server.post("/{database_name}", status_code=201)
-async def create_db(database_name: str, response: Response):
+async def create_db(request: Request, database_name: str, response: Response):
     new_db = FourierDB(database_name)
     new_db_file = Path(FOURIER_DBS / f"{database_name}.db")
     if new_db_file.exists():
@@ -35,6 +42,9 @@ async def create_db(database_name: str, response: Response):
         return {"message": "Resource already exists"}
     with open(new_db_file, "wb+") as db_file:
         pickle.dump(new_db, db_file)
+    method = click.style("POST:", fg="cyan")
+    path = click.style(str(request.url), bold=True)
+    click.echo(method + "   " + path)
     return {"message": "Database created", "name": database_name}
 
 @server.delete("/{database_name}", status_code=200)
@@ -80,7 +90,7 @@ async def insert_document(request: Request, database_name: str, collection_name:
     return {"message":"Created document"}
 
 def run_server(port):
-    uvicorn.run(server, port=port)
+    uvicorn.run(server, port=port, access_log=False, log_level=50)
 
 if __name__ == "__main__":
     run_server(2359)
