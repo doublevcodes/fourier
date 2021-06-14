@@ -16,10 +16,8 @@ def fourierdb(ctx):
 @click.option("-p", "--port", default=2359, type=int, show_default=True, help="The port to run the FourierDB server on")
 @click.pass_context
 def run(ctx, port: Optional[int]):
-    click.secho(f"Starting FourierDB server on port {port}", fg="green", underline=True)
-    click.secho(f"FourierDB running on port {port} ✅", fg="green", bold=True, underline=True)
-    server_log = logging.getLogger("uvicorn.error")
-    server_log.setLevel(logging.CRITICAL)
+    click.secho(f"Starting FourierDB server on port {port}", fg="green")
+    click.secho(f"FourierDB running on port {port} ✅", fg="green", bold=True)
     run_server(port)
 
 @fourierdb.command()
