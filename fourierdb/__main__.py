@@ -29,7 +29,7 @@ def databases(ctx):
         return
     databases = [f.stem for f in (pathlib.Path.home() / ".fourier" / "databases").glob("*.db")]
     integer = click.style(str(len(databases)), fg="bright_cyan")
-    click.secho(f"You have currently have {integer} databases:")
+    click.secho(f"You have currently have {integer} databases! {(click.style(':(', fg='red')) if integer == 0 else ''}")
     for num, db in enumerate(databases):
         click.secho(str(num + 1), fg="yellow", nl=False)
         click.echo(f". {db}")
