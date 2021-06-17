@@ -1,6 +1,7 @@
 import uvicorn
 import pickle
 import click
+import json
 from pathlib import Path
 from fourierdb import FourierDB, FourierCollection, FourierDocument
 from fastapi import FastAPI, Request, Response
@@ -10,6 +11,7 @@ server = FastAPI()
 FOURIER_DIR = Path.home() / ".fourier"
 FOURIER_LOGS = FOURIER_DIR / "logs"
 FOURIER_DBS = FOURIER_DIR / "databases"
+FOURIER_CACHE = FOURIER_DIR / ".cache.json"
 
 
 @server.on_event("startup")
@@ -17,6 +19,9 @@ async def start_server():
     FOURIER_DIR.mkdir(exist_ok=True)
     FOURIER_LOGS.mkdir(exist_ok=True)
     FOURIER_DBS.mkdir(exist_ok=True)
+    FOURIER_CACHE.mkdir(exist_ok=True)
+    with open(FOURIER_CACHE) as cache:
+        json.dump({"server": True}, cache)
 
 @server.get("/{database_name}", status_code=200)
 async def get_db(request: Request, database_name: str, response: Response):
@@ -79,6 +84,11 @@ async def insert_document(request: Request, database_name: str, collection_name:
     coll.insert(FourierDocument(await request.json()))
     pickle.dump(db, open(db_file, "wb"))
     return {"message":"Created document"}
+
+@server.on_event("shutdown")
+async def server_stop():
+    with open(FOURIER_CACHE, "w") as cache:
+        json.dump({"server": False}, cache)
 
 def run_server(port):
     uvicorn.run(server, port=port)
