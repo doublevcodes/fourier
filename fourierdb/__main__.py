@@ -1,6 +1,7 @@
+import json
 from typing import Optional
 import pathlib
-import logging
+import sys
 from fourierdb.server import run_server
 
 import click
@@ -33,6 +34,19 @@ def databases(ctx):
     for num, db in enumerate(databases):
         click.secho(str(num + 1), fg="yellow", nl=False)
         click.echo(f". {db}")
+
+@fourier.command()
+@click.pass_context
+def status(ctx):
+    cache = json.load(open(pathlib.Path.home() / ".fourier" / ".cache.json"))
+    if not cache["server"]:
+        click.echo(f"You do not currently have a server running {click.style(':(', fg='red')}")
+        suggested_cmd = click.style(f"{sys.executable.split('/')[-1]} -m fourier run --help", fg="white", bg="black")
+        click.echo(f"Try running {suggested_cmd} to get more information on how to start a server")
+        return
+    port = click.style(str(cache["port"]), fg="bright_cyan")
+    click.echo(f"You do have a Fourier server running {click.style(':)', fg='green')}")
+    click.echo(f"It is running on port {port}")
 
 if __name__ == "__main__":
     fourier()

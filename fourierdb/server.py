@@ -18,9 +18,6 @@ async def start_server():
     FOURIER_DIR.mkdir(exist_ok=True)
     FOURIER_LOGS.mkdir(exist_ok=True)
     FOURIER_DBS.mkdir(exist_ok=True)
-    FOURIER_CACHE.mkdir(exist_ok=True)
-    with open(FOURIER_CACHE) as cache:
-        json.dump({"server": True}, cache)
 
 @server.get("/{database_name}", status_code=200)
 async def get_db(request: Request, database_name: str, response: Response):
@@ -90,6 +87,9 @@ async def server_stop():
         json.dump({"server": False}, cache)
 
 def run_server(port):
+    FOURIER_CACHE.touch(exist_ok=True)
+    with open(FOURIER_CACHE, "w") as cache:
+        json.dump({"server": True, "port": port}, cache)
     uvicorn.run(server, port=port)
 
 if __name__ == "__main__":
