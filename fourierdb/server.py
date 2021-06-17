@@ -1,6 +1,5 @@
 import uvicorn
 import pickle
-import click
 import json
 from pathlib import Path
 from fourierdb import FourierDB, FourierCollection, FourierDocument
