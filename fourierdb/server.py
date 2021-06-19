@@ -5,7 +5,7 @@ import pickle
 import json
 from pathlib import Path
 from fourierdb import FourierDB, FourierCollection, FourierDocument
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
 
 server = FastAPI()
 
@@ -31,7 +31,7 @@ async def get_db(database_name: str, response: Response) -> Union[dict[str, str]
     db_file: Path = get_db_file(database_name)
 
     if not db_file.exists():
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": database_name}
     
     db: FourierDB = pickle.load(open(db_file, "rb"))
@@ -48,7 +48,7 @@ async def create_db(database_name: str, response: Response) -> dict[str, str]:
     new_db_file: Path = get_db_file(database_name)
 
     if new_db_file.exists():
-        response.status_code = 422
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return {"message": get_status_message(response.status_code), "name": database_name}
     
     with open(new_db_file, "wb+") as db_file:
@@ -66,7 +66,7 @@ async def remove_db(database_name: str, response: Response) -> dict[str, str]:
     db_file: Path = get_db_file(database_name)
 
     if not db_file.exists():
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": database_name}
 
     # Set `missing_ok` to `False` because we want an internal server error if the database
@@ -84,14 +84,14 @@ async def get_collection(database_name: str, collection_name, response: Response
     db_file: Path = get_db_file(database_name)
     
     if not db_file.exists():
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": database_name}
     
     db: FourierDB = pickle.load(open(db_file, "rb"))
     collection: FourierCollection = db.get(collection_name, False)
 
     if not collection:
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": collection_name}
 
     return dict(collection)
@@ -106,14 +106,14 @@ async def insert_collection(database_name: str, collection_name: str, response: 
     db_file: Path = get_db_file(database_name)
 
     if db_file.exists():
-        response.status_code = 422
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return {"message": get_status_message(response.status_code), "name": database_name}
 
     db: FourierDB = pickle.load(open(db_file, "rb"))
     collection = db.get(collection_name, False)
     
     if collection:
-        response.status_code = 422
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return {"message": get_status_message(response.status_code), "name": collection_name}
 
     new_collection: FourierCollection = FourierCollection(collection_name)
@@ -132,14 +132,14 @@ async def remove_collection(database_name: str, collection_name: str, response: 
     db_file: Path = get_db_file(database_name)
 
     if not db_file.exists():
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": database_name}
 
     db: FourierDB = pickle.load(open(db_file, "rb"))
     collection: FourierCollection = db.get(collection_name, False)
 
     if not collection:
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": collection_name}
 
     pickle.dump(db, open(db_file, "wb"))
@@ -155,14 +155,14 @@ async def insert_document(request: Request, database_name: str, collection_name:
     db_file = get_db_file(database_name)
 
     if not db_file.exists():
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": database_name}
 
     db: FourierDB = pickle.load(open(db_file, "rb"))
     collection: FourierCollection = db.get(collection_name, False)
     
     if not collection:
-        response.status_code = 404
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": get_status_message(response.status_code), "name": collection_name}
 
     request_body = await request.json()
