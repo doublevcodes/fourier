@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "fourier"
+version = "0.1.0"
+description = "A non-relational, NoSQL and adaptive database"
+authors = ["Vivaan Verma <vivaan.verma@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.65.2"
+click = "^8.0.1"
+uvicorn = "^0.14.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.6b0"
+taskipy = "^1.8.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+lint = "black ."
