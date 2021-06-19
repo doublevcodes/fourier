@@ -1,13 +1,16 @@
-from typing import Any, Union
-from fourierdb.helpers import get_db_file, get_status_message
-import uvicorn
-import pickle
 import json
+import pickle
+from typing import Any, Union
 from pathlib import Path
+
+from uvicorn import run
 from fourierdb import FourierDB, FourierCollection, FourierDocument
 from fastapi import FastAPI, Request, Response, status
 
-server = FastAPI()
+from fourierdb.helpers import get_db_file, get_status_message
+
+
+server: FastAPI = FastAPI()
 
 FOURIER_DIR: Path = Path.home() / ".fourier"
 FOURIER_LOGS: Path = FOURIER_DIR / "logs"
@@ -235,7 +238,7 @@ def run_server(port) -> None:
     FOURIER_CACHE.touch(exist_ok=True)
     with open(FOURIER_CACHE, "w") as cache:
         json.dump({"server": True, "port": port}, cache)
-    uvicorn.run(server, port=port)
+    run(server, port=port)
 
 
 if __name__ == "__main__":

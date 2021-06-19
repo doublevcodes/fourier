@@ -1,9 +1,9 @@
-import time
+from time import time_ns, process_time_ns
 
 
 def construct_snowflake() -> int:
-    milliseconds_from_epoch: int = time.time_ns() // 1_000_000
-    process_time: int = time.process_time_ns()
+    milliseconds_from_epoch: int = time_ns() // 1_000_000
+    process_time: int = process_time_ns()
     concat_times: int = int(str(milliseconds_from_epoch) + str(process_time))
     snowflake: int = concat_times >> 4
     return snowflake
