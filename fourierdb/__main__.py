@@ -1,15 +1,15 @@
-import json
+from json import load
+from pathlib import Path
+from sys import executable
 from typing import Optional
-import pathlib
-import sys
-from fourierdb.server import run_server
 
 import click
 
+from fourierdb.helpers import get_databases
+from fourierdb.server import run_server
 
 @click.group()
-@click.pass_context
-def fourier(ctx):
+def fourier():
     pass
 
 
@@ -22,42 +22,35 @@ def fourier(ctx):
     show_default=True,
     help="The port to run the FourierDB server on",
 )
-@click.pass_context
-def run(ctx, port: Optional[int]):
+def run(port: Optional[int]):
     click.secho(f"Starting FourierDB server on port {port}", fg="green")
     click.secho(f"FourierDB running on port {port} ✅", fg="green", bold=True)
     run_server(port)
 
 
 @fourier.command()
-@click.pass_context
-def databases(ctx):
-    if not ((pathlib.Path.home() / ".fourier").exists()):
+def databases():
+    if not ((Path.home() / ".fourier").exists()):
         integer = click.style("0", fg="bright_cyan", bold=True)
         click.secho(f"You have currently have {integer} databases")
         return
-    databases = [
-        f.stem for f in (pathlib.Path.home() / ".fourier" / "databases").glob("*.db")
-    ]
+    databases = get_databases()
     integer = click.style(str(len(databases)), fg="bright_cyan")
-    click.secho(
-        f"You have currently have {integer} databases! {(click.style(':(', fg='red')) if integer == 0 else ''}"
-    )
+    click.secho(f"You have currently have {integer} databases!")
     for num, db in enumerate(databases):
         click.secho(str(num + 1), fg="yellow", nl=False)
         click.echo(f". {db}")
 
 
 @fourier.command()
-@click.pass_context
-def status(ctx):
-    cache = json.load(open(pathlib.Path.home() / ".fourier" / ".cache.json"))
+def status():
+    cache = load(open(Path.home() / ".fourier" / ".cache.json"))
     if not cache["server"]:
         click.echo(
             f"You do not currently have a server running {click.style(':(', fg='red')}"
         )
         suggested_cmd = click.style(
-            f"{sys.executable.split('/')[-1]} -m fourier run --help",
+            f"{executable.split('/')[-1]} -m fourier run --help",
             fg="white",
             bg="black",
         )
@@ -69,9 +62,8 @@ def status(ctx):
         )
         return
     port = click.style(str(cache["port"]), fg="bright_cyan")
-    click.echo(f"You do have a Fourier server running {click.style(':)', fg='green')}")
-    click.echo(f"It is running on port {port}")
-    click.echo(f"Checking if server is responding")
+    click.echo(f"You have a Fourier server running ✅")
+    click.echo(f"Running on port {port}")
 
 
 if __name__ == "__main__":

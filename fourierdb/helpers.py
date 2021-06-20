@@ -7,6 +7,13 @@ FOURIER_DBS = FOURIER_DIR / "databases"
 FOURIER_CACHE = FOURIER_DIR / ".cache.json"
 
 
+def get_databases():
+    if not (Path.home() / ".fourier").exists():
+        return []
+    databases = [f.stem for f in (Path.home() / ".fourier" / "databases").glob("*.db")]
+    return databases
+
+
 def get_db_file(database_name: str) -> Path:
     return Path(FOURIER_DBS / f"{database_name}.db")
 
