@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Editing environments
+.vscode
+.replit
+.idea
