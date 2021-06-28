@@ -1,4 +1,5 @@
 import json
+import os
 import pickle
 from typing import Any, Union
 from pathlib import Path
@@ -19,7 +20,7 @@ FOURIER_CACHE: Path = FOURIER_DIR / ".cache.json"
 
 
 @server.on_event("startup")
-async def start_server() -> None:
+async def start_server():
     FOURIER_DIR.mkdir(exist_ok=True)
     FOURIER_LOGS.mkdir(exist_ok=True)
     FOURIER_DBS.mkdir(exist_ok=True)
@@ -267,6 +268,8 @@ async def server_stop() -> None:
 
 
 def run_server(port) -> None:
+    Path.home().mkdir(exist_ok=True, parents=True)
+    FOURIER_DIR.mkdir(exist_ok=True)
     FOURIER_CACHE.touch(exist_ok=True)
     with open(FOURIER_CACHE, "w") as cache:
         json.dump({"server": True, "port": port}, cache)
